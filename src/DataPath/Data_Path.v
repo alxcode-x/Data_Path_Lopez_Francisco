@@ -11,6 +11,7 @@ module Data_Path
     output [7:0] GPIO_o,
 
     /********* Control Signals *********/
+    input [31:0] initial_address,
     input PCWrite,
           IorD,
           MemWrite,
@@ -44,6 +45,7 @@ module Data_Path
     assign OP = OP_w;
     assign Funct = Funct_w;
     assign Result_o = ALUOut_w;
+    //assign Adr_w = initial_address;
 
     //PC - Register
     Reg_Enable PROGRAM_COUNTER(
@@ -70,7 +72,7 @@ module Data_Path
         .clk(clk),
         .Write_Enable_i(MemWrite),
         .Write_Data_i(Reg_B_W),
-        .Address_i(Adr_w),
+        .Address_i(initial_address),
         .Instruction_o(RD_w) //output
     );
 
@@ -113,8 +115,8 @@ module Data_Path
         .reset(reset),
         .Reg_Write_i(RegWrite),
         .Write_Register_i(A3_w),
-        .Read_Register_1_i(A1_w),
-        .Read_Register_2_i(A2_w),
+        .Read_Register_1_i(Data_w[25:21]),
+        .Read_Register_2_i(Data_w[20:16]),
         .Write_Data_i(WD3_w),
         .Read_Data_1_o(RD1_w),
         .Read_Data_2_o(RD2_w)

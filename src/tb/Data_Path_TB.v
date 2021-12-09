@@ -33,6 +33,7 @@ module Data_Path_TB();
         .Instruction_Range_i(Instruction_Range_i)
     )
     DP(
+	.initial_address(Instruction_Range_i),
         .clk(clk),
         .reset(reset),
         .GPIO_o(GPIO_o),
@@ -71,8 +72,8 @@ module Data_Path_TB();
         ALUControl = 4'b0100; //{OP, Funct};
         PCSrc = 0;
     //****** Decode ************
-        PCWrite = 0;
-        IRWrite = 0;
+       //PCWrite = 0;
+       // IRWrite = 0;
     //****** Execution *********
         ALUSrcA = 1;
         ALUSrcB = operator;
