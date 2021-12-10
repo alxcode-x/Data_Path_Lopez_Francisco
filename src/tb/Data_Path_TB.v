@@ -10,6 +10,7 @@ module Data_Path_TB();
     wire [7:0] GPIO_o;
 
     /********* Control Signals *********/
+    reg initial_sel;
     reg PCWrite;
     reg IorD;
     reg MemWrite;
@@ -34,6 +35,7 @@ module Data_Path_TB();
     )
     DP(
 	.initial_address(Instruction_Range_i),
+	.initial_sel(initial_sel),
         .clk(clk),
         .reset(reset),
         .GPIO_o(GPIO_o),
@@ -59,9 +61,9 @@ module Data_Path_TB();
     endtask
 
     //=== Tasks for fetch cycle of  each isntruction ===
-    task FetchCycle(input [3:0] operation, input [1:0] operator, input intruction_type);
+    task Fetch(input initial_sel_tb);
      begin
-    //****** Fetch ************
+	initial_sel = initial_sel_tb;
         PCWrite = 1;
         IorD = 0;
         MemWrite = 0;
@@ -69,25 +71,40 @@ module Data_Path_TB();
         RegWrite = 0;
         ALUSrcA = 0;
         ALUSrcB = 2'b01;
-        ALUControl = 4'b0100; //{OP, Funct};
+        ALUControl = 4'b0100;
         PCSrc = 0;
-    //****** Decode ************
-       //PCWrite = 0;
-       // IRWrite = 0;
-    //****** Execution *********
-        ALUSrcA = 1;
-        ALUSrcB = operator;
-        ALUControl = operation; // SUM
-    //*** Write Background ****
-        RegDst = intruction_type;
-        MemtoReg = 0;
-        RegWrite = 1;
-    //****** LOAD *************
-        IorD = 1;
-        MemtoReg = 1;
-
-        Result();
+        
      end
+    endtask
+
+    task Decode(input PCWrite_tb, IRWrite_tb);
+	begin
+       		PCWrite = PCWrite_tb;
+       		IRWrite = IRWrite_tb;
+	end
+    endtask
+
+    task Execution(input ALUSrcA_tb, input [1:0] ALUSrcB_tb, input [3:0] ALUControl_tb);
+	begin
+		ALUSrcA = ALUSrcA_tb;
+		ALUSrcB = ALUSrcB_tb;
+	        ALUControl = ALUControl_tb;
+	end
+    endtask
+
+    task WriteBack(input RegDst_tb, Memtoreg_tb, RegWrite_tb);
+	begin
+       	 	RegDst = RegDst_tb;
+        	MemtoReg = Memtoreg_tb;
+        	RegWrite = RegWrite_tb;
+	end
+    endtask
+
+    task LOAD(input IorD_tb, MemtoReg_tb);
+  	begin
+		IorD = IorD_tb;
+	        MemtoReg = MemtoReg_tb;
+	end
     endtask
 
     //============ Clock generator =====================
@@ -98,12 +115,47 @@ module Data_Path_TB();
     //============ Test cases ==========================
 
     initial begin	
-        #0  FetchCycle(4'b0100, 2'b10, 0);
-        #10 FetchCycle(4'b0100, 2'b10, 0);
-        #10 FetchCycle(4'b0100, 2'b10, 0);
-        #10 FetchCycle(4'b0100, 2'b00, 1);
-        #10 FetchCycle(4'b0100, 2'b00, 1);
-        #10 FetchCycle(4'b0100, 2'b00, 1);
+        #0  Fetch(0);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b10, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
+
+	#10  Fetch(1);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b10, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
+
+	#10  Fetch(1);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b10, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
+	
+	#10  Fetch(1);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b00, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
+
+	#10  Fetch(1);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b00, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
+
+	#10  Fetch(1);
+	#10 Decode(0, 0);
+	#10 Execution(0, 2'b00, 4'b0100);
+	#10 WriteBack(0, 0, 1);
+	#10 LOAD(1, 1);
+	#10 Result();
     end
 	
 endmodule 

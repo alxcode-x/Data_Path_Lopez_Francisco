@@ -12,6 +12,7 @@ module Data_Path
 
     /********* Control Signals *********/
     input [31:0] initial_address,
+    input initial_sel,
     input PCWrite,
           IorD,
           MemWrite,
@@ -27,7 +28,7 @@ module Data_Path
     output [5:0] Funct, 
     output [31:0] Result_o
 );
-    wire [31:0] PC_i_w, PC_o_w;
+    wire [31:0] PC_i_w, PC_o_w, ALU_PC_w;
     wire [31:0] Adr_w;
     wire [31:0] SrcA_w, SrcB_w;
     wire [31:0] ALUResult_w, ALUOut_w;
@@ -45,8 +46,15 @@ module Data_Path
     assign OP = OP_w;
     assign Funct = Funct_w;
     assign Result_o = ALUOut_w;
-    //assign Adr_w = initial_address;
+    //assign PC_i_w = initial_address;
 
+    Mux_2x1 Init_Addr(
+        .selector(initial_sel), 
+        .in_0(initial_address), 
+        .in_1(ALU_PC_w), 
+        .data_out(PC_i_w)
+    );
+	
     //PC - Register
     Reg_Enable PROGRAM_COUNTER(
         .clk(clk), 
@@ -72,7 +80,7 @@ module Data_Path
         .clk(clk),
         .Write_Enable_i(MemWrite),
         .Write_Data_i(Reg_B_W),
-        .Address_i(initial_address),
+        .Address_i(Adr_w),
         .Instruction_o(RD_w) //output
     );
 
@@ -181,7 +189,7 @@ module Data_Path
         .selector(PCSrc),
         .in_0(ALUResult_w),
         .in_1(ALUOut_w),
-        .data_out(PC_i_w)
+        .data_out(ALU_PC_w)
     );
 
 endmodule 
