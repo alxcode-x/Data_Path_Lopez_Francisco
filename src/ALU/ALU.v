@@ -1,7 +1,11 @@
-module ALU (	 // ARITHMETIC UNIT
-	input [3:0]  selector,
-	input [31:0] a, b,
-	output reg	[31:0] y
+module ALU 
+#(
+	parameter WIDTH = 32
+)(	
+	input 		[3:0]  		selector,
+	input 		[WIDTH-1:0] a, b,
+	output reg	[WIDTH-1:0] y,
+	output reg 				zero
 );
 
 	always @ (*)
@@ -25,5 +29,8 @@ module ALU (	 // ARITHMETIC UNIT
 			4'b1111: y = 0;
 			default: y = 4'b0;
 		endcase
+
+		zero = (y == 32'h0) ? 1 : 0;
+
 	end
 endmodule

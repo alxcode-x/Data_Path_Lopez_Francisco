@@ -1,8 +1,7 @@
 module Data_Path
 #(	
 	parameter MEMORY_DEPTH 	= 64,
-	parameter DATA_WIDTH 	= 32,
-	parameter Instruction_Range_i = 32'h400000
+	parameter DATA_WIDTH 	= 32
 )(
     // Inputs
     input clk,
@@ -11,19 +10,19 @@ module Data_Path
     output [7:0] GPIO_o,
 
     /********* Control Signals *********/
-    input [31:0] initial_address,
     input initial_sel,
-    input PCWrite,
-          IorD,
-          MemWrite,
-          IRWrite,
-          RegDst,
-          MemtoReg,
-          RegWrite,
-          ALUSrcA,
+    input       PCWrite,
+                IorD,
+                MemWrite,
+                IRWrite,
+                RegDst,
+                MemtoReg,
+                RegWrite,
+                PCSrc,
+                ALUSrcA,
     input [1:0] ALUSrcB,
     input [3:0] ALUControl,
-    input PCSrc,
+    
     output [5:0] OP,
     output [5:0] Funct, 
     output [31:0] Result_o
@@ -33,7 +32,7 @@ module Data_Path
     wire [31:0] SrcA_w, SrcB_w;
     wire [31:0] ALUResult_w, ALUOut_w;
     wire [31:0] RD_w, RD_1_w, RD_2_w;
-    wire [31:0] Reg_A_w, Reg_B_w;
+    wire [31:0] A_w, B_w;
     wire [31:0] Instr_w, Data_w;
     wire [4:0]  A1_w, A2_w, A3_w;
     wire [31:0] WD3_w;
@@ -46,20 +45,14 @@ module Data_Path
     assign OP = OP_w;
     assign Funct = Funct_w;
     assign Result_o = ALUOut_w;
-    //assign PC_i_w = initial_address;
+    
 
-    Mux_2x1 Init_Addr(
-        .selector(initial_sel), 
-        .in_0(initial_address), 
-        .in_1(ALU_PC_w), 
-        .data_out(PC_i_w)
-    );
-	
     //PC - Register
-    Reg_Enable PROGRAM_COUNTER(
+    Reg_PC PROGRAM_COUNTER(
         .clk(clk), 
-        .enable(PCWrite), 
-        .data_i(PC_i_w), 
+        .enable(PCWrite),
+        .reset(reset), 
+        .data_i(ALU_PC_w), 
         .data_o(PC_o_w)
     );
 
@@ -74,12 +67,11 @@ module Data_Path
     //Memory System
     Memory_System #(
         .MEMORY_DEPTH(MEMORY_DEPTH),
-        .DATA_WIDTH(DATA_WIDTH),
-        .Instruction_Range_i(Instruction_Range_i))
+        .DATA_WIDTH(DATA_WIDTH))
     MEMORY(
         .clk(clk),
         .Write_Enable_i(MemWrite),
-        .Write_Data_i(Reg_B_W),
+        .Write_Data_i(B_W),
         .Address_i(Adr_w),
         .Instruction_o(RD_w) //output
     );
@@ -88,6 +80,7 @@ module Data_Path
     Reg_Enable Instr(
         .clk(clk), 
         .enable(IRWrite), 
+        .reset(reset),
         .data_i(RD_w), 
         .data_o(Instr_w)
     );
@@ -95,6 +88,7 @@ module Data_Path
     //Data - Register
     Reg_Simple Data(
         .clk(clk), 
+        .reset(reset),
         .data_i(RD_w), 
         .data_o(Data_w)
     );
@@ -123,8 +117,8 @@ module Data_Path
         .reset(reset),
         .Reg_Write_i(RegWrite),
         .Write_Register_i(A3_w),
-        .Read_Register_1_i(Data_w[25:21]),
-        .Read_Register_2_i(Data_w[20:16]),
+        .Read_Register_1_i(Instr_w[25:21]),
+        .Read_Register_2_i(Instr_w[20:16]),
         .Write_Data_i(WD3_w),
         .Read_Data_1_o(RD1_w),
         .Read_Data_2_o(RD2_w)
@@ -133,6 +127,7 @@ module Data_Path
     //Post Register File - Register
     Reg_D PostRF(
         .clk(clk), 
+        .reset(reset),
         .data_A_i(RD1_w), 
         .data_B_i(RD2_w), 
         .data_A_o(A_w), 
@@ -180,6 +175,7 @@ module Data_Path
     //ALUOut - Register
     Reg_Simple ALUOut(
         .clk(clk),
+        .reset(reset),
         .data_i(ALUResult_w),
         .data_o(ALUOut_w)
     );
