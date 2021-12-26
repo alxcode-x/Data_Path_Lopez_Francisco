@@ -1,8 +1,7 @@
 module Data_Path_TB();
 	parameter MEMORY_DEPTH 	= 64;
 	parameter DATA_WIDTH 	= 32;
-	localparam Instruction_Range_i = 32'h400000;
-
+	
     // Inputs
     reg clk = 0;
     reg reset = 0;
@@ -10,7 +9,6 @@ module Data_Path_TB();
     wire [7:0] GPIO_o;
 
     /********* Control Signals *********/
-    reg initial_sel;
     reg PCWrite;
     reg IorD;
     reg MemWrite;
@@ -30,12 +28,9 @@ module Data_Path_TB();
 //======================= DataPath Instance======================
     Data_Path #(
         .MEMORY_DEPTH(MEMORY_DEPTH),
-        .DATA_WIDTH(DATA_WIDTH),
-        .Instruction_Range_i(Instruction_Range_i)
+        .DATA_WIDTH(DATA_WIDTH)
     )
     DP(
-	.initial_address(Instruction_Range_i),
-	.initial_sel(initial_sel),
         .clk(clk),
         .reset(reset),
         .GPIO_o(GPIO_o),
@@ -61,10 +56,9 @@ module Data_Path_TB();
     endtask
 
     //=== Tasks for fetch cycle of  each isntruction ===
-    task Fetch(input initial_sel_tb);
+    task Fetch(input reset);
      begin
-	initial_sel = initial_sel_tb;
-        PCWrite = 1;
+     	PCWrite = 1;
         IorD = 0;
         MemWrite = 0;
         IRWrite = 1;
@@ -109,53 +103,57 @@ module Data_Path_TB();
 
     //============ Clock generator =====================
     initial begin
-	forever #1 clk = !clk;
+	forever #10 clk = !clk;
     end
 	 
     //============ Test cases ==========================
 
     initial begin	
         #0  Fetch(0);
+        #0  reset = 0;
+        #5  reset = 1;
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b10, 4'b0100);
+	#10 Execution(1, 2'b10, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
 
-	#10  Fetch(1);
+	#10 Fetch(1);
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b10, 4'b0100);
+	#10 Execution(1, 2'b10, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
 
-	#10  Fetch(1);
+	#10 Fetch(1);
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b10, 4'b0100);
+	#10 Execution(1, 2'b10, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
 	
 	#10  Fetch(1);
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b00, 4'b0100);
+	#10 Execution(1, 2'b00, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
 
-	#10  Fetch(1);
+	#10 Fetch(1);
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b00, 4'b0100);
+	#10 Execution(1, 2'b00, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
 
-	#10  Fetch(1);
+	#10 Fetch(1);
 	#10 Decode(0, 0);
-	#10 Execution(0, 2'b00, 4'b0100);
+	#10 Execution(1, 2'b00, 4'b0100);
 	#10 WriteBack(0, 0, 1);
 	#10 LOAD(1, 1);
 	#10 Result();
+	
+	$finish;
     end
 	
 endmodule 

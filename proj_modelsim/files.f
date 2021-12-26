@@ -5,13 +5,12 @@
 ../src/DataPath/Reg_D.v
 ../src/DataPath/Mux_4x1.v
 ../src/DataPath/Reg_Enable.v
+../src/DataPath/Reg_PC.v
 ../src/DataPath/Left_Shift.v
 ../src/DataPath/Data_Path.v
 ../src/MemorySystem/Memory_MUX.v
-../src/MemorySystem/Instruction_Decoder.v
 ../src/MemorySystem/Memory_System.v
 ../src/MemorySystem/Program_Memory.v
-../src/MemorySystem/Priority_Decoder.v
 ../src/MemorySystem/Data_Memory.v
 ../src/RegisterFile/encoder_32.v
 ../src/RegisterFile/ff_d.v

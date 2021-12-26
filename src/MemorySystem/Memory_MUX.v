@@ -8,9 +8,7 @@ module Memory_MUX
 );
 	
 	always @(*) begin
-		case(Address_i)
-			Instruction_o = (Address_i > 32'h10000000) ? Ram_i : Rom_i;
-		endcase
+		Instruction_o = (Address_i > 32'h10000000) ? Ram_i : Rom_i;
 	end
 	
 endmodule 

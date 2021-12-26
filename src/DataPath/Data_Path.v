@@ -31,12 +31,10 @@ module Data_Path
     wire [31:0] Adr_w;
     wire [31:0] SrcA_w, SrcB_w;
     wire [31:0] ALUResult_w, ALUOut_w;
-    wire [31:0] RD_w, RD_1_w, RD_2_w;
-    wire [31:0] A_w, B_w;
     wire [31:0] Instr_w, Data_w;
     wire [4:0]  A1_w, A2_w, A3_w;
     wire [31:0] WD3_w;
-    wire [31:0] RD1_w, RD2_w;
+    wire [31:0] RD_w, RD1_w, RD2_w;
     wire [31:0] A_w, B_w;
     wire [31:0] SignImm_w;
     wire [31:0] LS_w;
