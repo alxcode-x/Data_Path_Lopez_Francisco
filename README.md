@@ -1,5 +1,4 @@
-##Data Path
-The project does not work as expected. After many tests it was returned to a structure to reprensent the main idea about how it should to work.
+### Data Path
 
 Run simulation using:
 >proj_modelsim/run.do
