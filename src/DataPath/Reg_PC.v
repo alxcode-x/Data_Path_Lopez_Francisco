@@ -6,7 +6,7 @@ module Reg_PC
 );
  
  	always @(posedge clk or negedge reset) begin
-      if (!reset) data <= 32'h400000;
+      if (!reset) data_o <= 32'h400000;
       else
 		if(enable) data_o <= data_i;
    end 
